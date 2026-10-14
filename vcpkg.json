@@ -1,0 +1,9 @@
+﻿{
+  "name": "search-engine",
+  "version-string": "1.0.0",
+  "builtin-baseline": "44819aa2a6c10e56065e2b0330e7d6c89d1d2574",
+  "dependencies": [
+    "libpqxx",
+    "boost-locale"
+  ]
+}

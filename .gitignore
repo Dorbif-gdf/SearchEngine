@@ -1,0 +1,25 @@
+﻿# Build files
+build/
+out/
+Debug/
+Release/
+x64/
+.vs/
+
+# vcpkg installed dependencies
+vcpkg_installed/
+
+# Local configuration with database credentials
+config/config.ini
+
+# IDE and temporary files
+*.user
+*.suo
+*.cache
+*.log
+
+# Compiled files
+*.exe
+*.dll
+*.obj
+*.pdb
