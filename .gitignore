@@ -23,3 +23,6 @@ config/config.ini
 *.dll
 *.obj
 *.pdb
+
+# Temporary manual test documents
+test_documents/
