@@ -10,20 +10,17 @@ namespace WordNormalizer
 {
     inline wchar_t toLower(wchar_t character)
     {
-        // Английские буквы A-Z.
         if (character >= L'A' && character <= L'Z')
         {
             return character + (L'a' - L'A');
         }
 
-        // Русские буквы А-Я.
         if (character >= L'\u0410' &&
             character <= L'\u042F')
         {
             return character + 0x20;
         }
 
-        // Русская Ё.
         if (character == L'\u0401')
         {
             return L'\u0451';

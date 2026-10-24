@@ -111,9 +111,29 @@ int main()
             ));
         }
 
+        std::size_t indexedFiles = 0;
+        std::size_t failedFiles = 0;
+
         for (std::size_t i = 0; i < files.size(); ++i)
         {
-            const Frequencies frequencies = results[i].get();
+            Frequencies frequencies;
+
+            try
+            {
+                frequencies = results[i].get();
+            }
+            catch (const std::exception& error)
+            {
+                std::cerr
+                    << "Failed to process file: "
+                    << files[i].string()
+                    << "; error: "
+                    << error.what()
+                    << '\n';
+
+                ++failedFiles;
+                continue;
+            }
 
             databaseIndexer.saveDocument(
                 files[i].string(),
@@ -121,19 +141,33 @@ int main()
                 frequencies
             );
 
-            std::cout << "Indexed: "
+            std::cout
+                << "Indexed: "
                 << files[i].filename().string()
                 << "; unique words: "
-                << frequencies.size() << '\n';
+                << frequencies.size()
+                << '\n';
+
+            ++indexedFiles;
         }
 
-        std::cout << "Indexing completed successfully.\n";
+        std::cout << "\nIndexing finished.\n"
+            << "Successfully indexed: " << indexedFiles << '\n'
+            << "Failed to process: " << failedFiles << '\n';
+
+        if (failedFiles > 0)
+        {
+            std::cerr
+                << "Indexing completed with errors.\n";
+
+            return 1;
+        }
+
+        return 0;
     }
     catch (const std::exception& error)
     {
         std::cerr << "Indexer error: " << error.what() << '\n';
         return 1;
     }
-
-    return 0;
 }
