@@ -23,8 +23,7 @@ public:
     }
 
     std::vector<SearchResult> search(
-        const std::map<std::string, int>& queryWords,
-        std::size_t limit = 10)
+        const std::map<std::string, int>& queryWords)
     {
         std::vector<SearchResult> results;
 
@@ -72,7 +71,7 @@ public:
             ORDER BY relevance DESC, d.filename ASC
             LIMIT )";
 
-        query += std::to_string(limit);
+        query += "10";
 
         const pqxx::result rows = transaction.exec(query);
 
