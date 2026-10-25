@@ -7,6 +7,7 @@
 #include <set>
 #include <stdexcept>
 #include <string>
+#include <system_error>
 #include <vector>
 
 class FileScanner
@@ -18,7 +19,9 @@ public:
     {
         namespace fs = std::filesystem;
 
-        if (!fs::exists(rootDirectory))
+        std::error_code error;
+
+        if (!fs::exists(rootDirectory, error) || error)
         {
             throw std::runtime_error(
                 "Root directory does not exist: "
@@ -26,7 +29,7 @@ public:
             );
         }
 
-        if (!fs::is_directory(rootDirectory))
+        if (!fs::is_directory(rootDirectory, error) || error)
         {
             throw std::runtime_error(
                 "Root path is not a directory: "
@@ -39,22 +42,55 @@ public:
 
         std::vector<fs::path> files;
 
-        for (const auto& entry :
-            fs::recursive_directory_iterator(rootDirectory))
+        fs::recursive_directory_iterator iterator(
+            rootDirectory,
+            fs::directory_options::skip_permission_denied,
+            error
+        );
+
+        const fs::recursive_directory_iterator end;
+
+        if (error)
         {
-            if (!entry.is_regular_file())
+            throw std::runtime_error(
+                "Cannot scan root directory: "
+                + rootDirectory.string()
+            );
+        }
+
+        while (iterator != end)
+        {
+            const fs::directory_entry entry = *iterator;
+
+            error.clear();
+
+            if (entry.is_regular_file(error) && !error)
             {
-                continue;
+                const std::string fileExtension =
+                    toLower(entry.path().extension().string());
+
+                if (extensions.contains(fileExtension))
+                {
+                    std::error_code pathError;
+
+                    fs::path absolutePath =
+                        fs::absolute(entry.path(), pathError);
+
+                    if (!pathError)
+                    {
+                        files.push_back(
+                            absolutePath.lexically_normal()
+                        );
+                    }
+                }
             }
 
-            const std::string fileExtension =
-                toLower(entry.path().extension().string());
+            error.clear();
+            iterator.increment(error);
 
-            if (extensions.contains(fileExtension))
+            if (error)
             {
-                files.push_back(
-                    fs::absolute(entry.path()).lexically_normal()
-                );
+                error.clear();
             }
         }
 
