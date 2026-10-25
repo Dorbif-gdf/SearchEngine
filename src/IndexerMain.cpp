@@ -135,20 +135,34 @@ int main()
                 continue;
             }
 
-            databaseIndexer.saveDocument(
-                files[i].string(),
-                files[i].filename().string(),
-                frequencies
-            );
+            try
+            {
+                databaseIndexer.saveDocument(
+                    files[i].string(),
+                    files[i].filename().string(),
+                    frequencies
+                );
 
-            std::cout
-                << "Indexed: "
-                << files[i].filename().string()
-                << "; unique words: "
-                << frequencies.size()
-                << '\n';
+                std::cout
+                    << "Indexed: "
+                    << files[i].filename().string()
+                    << "; unique words: "
+                    << frequencies.size()
+                    << '\n';
 
-            ++indexedFiles;
+                ++indexedFiles;
+            }
+            catch (const std::exception& error)
+            {
+                std::cerr
+                    << "Failed to index file: "
+                    << files[i].string()
+                    << "; error: "
+                    << error.what()
+                    << '\n';
+
+                ++failedFiles;
+            }
         }
 
         std::cout << "\nIndexing finished.\n"
